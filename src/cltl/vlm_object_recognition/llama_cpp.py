@@ -27,7 +27,7 @@ _SCENE_TYPE = SCENE_TYPE
 # tokens scale with the image size (Qwen3-VL: one token per 32x32 pixels), so images are
 # downscaled before they are sent, and the number of reported objects is limited.
 _MAX_IMAGE_SIZE = 1024
-_MAX_OBJECTS = 40
+_MAX_OBJECTS = 10
 # Penalizes tokens by how often they already occurred, to keep the model from looping on the
 # same detection (e.g. dozens of identical "cup" entries). Kept low, as it also applies to the
 # JSON keys and coordinate digits that legitimately repeat in the response.
