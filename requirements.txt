@@ -1,0 +1,10 @@
+.[service]
+pytest
+jsonpickle
+python-on-whales
+openai
+emissor @ git+https://github.com/leolani/emissor@ref_scenarios
+cltl.combot[external] @ git+https://github.com/leolani/cltl-combot.git@ref_scenarios
+kombu
+Pillow>=10
+opencv-python>=4.8
