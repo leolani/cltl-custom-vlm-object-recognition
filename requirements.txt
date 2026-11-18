@@ -1,10 +1,7 @@
 .[service]
-pytest
-jsonpickle
-python-on-whales
-openai
-emissor @ git+https://github.com/leolani/emissor@ref_scenarios
-cltl.combot[external] @ git+https://github.com/leolani/cltl-combot.git@ref_scenarios
-kombu
-Pillow>=10
-opencv-python>=4.8
+
+# `cltl.combot.infra.container` imports the kombu event bus at module level, so
+# every component that extends `InfraContainer` needs it whether or not the
+# deployment uses it. It is an extra of cltl.combot rather than a dependency of
+# this component, hence here and not in setup.py.
+cltl.combot[external]

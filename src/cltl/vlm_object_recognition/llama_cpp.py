@@ -4,10 +4,17 @@ import logging
 import re
 from typing import Iterable, Optional, Tuple
 
-import cv2
 import numpy as np
 from cltl.backend.api.camera import Bounds
 from openai import OpenAI
+
+# Guarded rather than declared: two differently named distributions provide cv2
+# (opencv-python, opencv-python-headless) and naming either in install_requires
+# breaks the other environment's offline install.
+try:
+    import cv2
+except ImportError:  # pragma: no cover
+    cv2 = None
 
 from cltl.vlm_object_recognition.api import Object, ObjectDetector, SCENE_TYPE, SCENE_DESCRIPTION_TYPE
 
@@ -105,7 +112,7 @@ class LlamaCppObjectDetector(ObjectDetector):
 
     @classmethod
     def from_config(cls, config_manager):
-        config = config_manager.get_config("cltl.object_recognition")
+        config = config_manager.get_config("cltl.vlm_object_recognition")
 
         return cls(model=config.get("model") if "model" in config else _DEFAULT_MODEL,
                    host=config.get("host") if "host" in config else _DEFAULT_HOST,

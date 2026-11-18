@@ -12,12 +12,12 @@ from flask import Flask
 from werkzeug.middleware.dispatcher import DispatcherMiddleware
 from werkzeug.serving import run_simple
 
-from cltl.vlm_object_recognition.container import ObjectRecognitionContainer
+from cltl_service.vlm_object_recognition.container import ObjectRecognitionContainer
 
-# Top-level module, deliberately: find_namespace_packages(include=['myorg.*'])
-# in setup.py does not match a bare `main`, so this file is never part of the
-# installed distribution. Only the container image (CMD ["python", "src/main.py"])
-# and a developer running it directly ever execute it — see docs/component.md.
+# Top-level module, deliberately: find_namespace_packages(include=['cltl.*',
+# 'cltl_service.*']) does not match a bare `main`, so this file is never part of
+# the installed distribution. Only the container image and a developer running
+# it directly ever execute it.
 
 logging.config.fileConfig(os.environ.get('CLTL_LOGGING_CONFIG', 'config/logging.config'),
                           disable_existing_loggers=False)
@@ -39,15 +39,8 @@ def deserializer(obj):
 
 
 class ApplicationContainer(ObjectRecognitionContainer):
-    """This deployment: just the component. Scenario creation is not this
-    template's job — it is the platform's own cltl-context, one per tenant,
-    running in the deployment this module attaches to (see
-    ../../modules/context in a cltl-apps checkout, or the equivalent in
-    whatever deployment mounts this image). A standalone template used to
-    carry its own throwaway scenario opener for exactly the deployments that
-    had no cltl-context of their own; against this platform there always is
-    one, so there is nothing to compose here beyond `ExampleContainer`.
-    """
+    """This deployment: just the component. Scenario creation is the platform's
+    own cltl-context's job."""
 
     @property
     @singleton
@@ -69,10 +62,7 @@ def main():
 
     # `docker compose down` and `docker stop` send SIGTERM, whose DEFAULT
     # disposition terminates the process outright — so `with application:`
-    # would never reach its __exit__, TenantContainer.stop would never run, and
-    # ScenarioStopped would never be published. The tenant's chat UI would be
-    # left holding a scenario whose owner is gone. (cltl-context/src/main.py has
-    # the identical latent bug.) Turning the signal into KeyboardInterrupt makes
+    # would never reach its __exit__, the container would never be stopped. Turning the signal into KeyboardInterrupt makes
     # it unwind through the `with` like a Ctrl-C does.
     def _interrupt(signum, frame):
         logger.info("Received signal %s; shutting down", signum)
@@ -87,8 +77,12 @@ def main():
         def health():
             return 'OK', 200
 
+        routes = {}
+        if application.object_recognition_service and application.object_recognition_service.app:
+            routes['/vlm_object_recognition'] = application.object_recognition_service.app
+
         try:
-            run_simple('0.0.0.0', 8010, DispatcherMiddleware(flask_app),
+            run_simple('0.0.0.0', 8010, DispatcherMiddleware(flask_app, routes),
                        threaded=True, use_reloader=False, use_debugger=False)
         except KeyboardInterrupt:
             # Caught here rather than relying on werkzeug: its

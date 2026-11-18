@@ -11,7 +11,7 @@ from cltl.combot.infra.topic_worker import TopicWorker
 from cltl.combot.event.emissor import ImageSignalEvent
 
 from cltl.vlm_object_recognition.api import ObjectDetector
-from cltl.vlm_object_recognition.schema import ObjectRecognitionEvent
+from cltl_service.vlm_object_recognition.schema import ObjectRecognitionEvent
 
 logger = logging.getLogger(__name__)
 
@@ -23,7 +23,7 @@ class ObjectRecognitionService:
     @classmethod
     def from_config(cls, object_detector: ObjectDetector, event_bus: EventBus, resource_manager: ResourceManager,
                     config_manager: ConfigurationManager):
-        config = config_manager.get_config("cltl.object_recognition.events")
+        config = config_manager.get_config("cltl.vlm_object_recognition.events")
         cls._check_storage_url(config_manager)
 
         def image_loader(url=None) -> ImageSource:
@@ -70,6 +70,11 @@ class ObjectRecognitionService:
         self._topic_worker = None
         self._app = None
 
+    @property
+    def app(self):
+        """This service has no HTTP endpoints."""
+        return None
+
     def start(self, timeout=30):
         self._object_detector.__enter__()
         self._topic_worker = TopicWorker([self._input_topic], self._event_bus, provides=[self._output_topic],
@@ -79,7 +84,7 @@ class ObjectRecognitionService:
 
     def stop(self):
         if not self._topic_worker:
-            pass
+            return
 
         self._topic_worker.stop()
         self._topic_worker.await_stop()

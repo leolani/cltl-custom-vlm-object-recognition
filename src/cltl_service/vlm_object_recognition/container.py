@@ -5,7 +5,7 @@ from cltl.combot.infra.di_container import singleton
 
 from cltl.vlm_object_recognition.api import ObjectDetector
 from cltl.vlm_object_recognition.llama_cpp import LlamaCppObjectDetector
-from cltl.vlm_object_recognition.service import ObjectRecognitionService
+from cltl_service.vlm_object_recognition.service import ObjectRecognitionService
 
 logger = logging.getLogger(__name__)
 

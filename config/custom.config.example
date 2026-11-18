@@ -14,9 +14,9 @@
 #
 # CLTL_STORAGE_URL is where `cltl-storage:image/<id>` resolves — the address of
 # the deployment's storage service, from OUTSIDE its compose network, with the
-# trailing slash. [myorg.example] image_storage_url reads it, and the module
+# trailing slash. [cltl.vlm_object_recognition.events] image_storage_url reads it, and the module
 # refuses to start on an empty or unexpanded value while topic_image is set.
-# Empty [myorg.example] topic_image in this file instead to run text-only.
+# Empty [cltl.vlm_object_recognition.events] topic_image in this file instead to run text-only.
 #
 # CLTL_TENANT is what this section demonstrates: tenant id handling. Left
 # empty, this module binds `<topic>.#` and answers every tenant on the
@@ -47,11 +47,11 @@ tenant: $CLTL_TENANT
 storage_url: $CLTL_STORAGE_URL
 server_image_url: http://127.0.0.1:8000/host
 
-[cltl.object_recognition]
+[cltl.vlm_object_recognition]
 model: Qwen3VL-8B-Instruct
 host: http://localhost:9009
 frequency_penalty: 0.3
 
-[cltl.object_recognition.events]
+[cltl.vlm_object_recognition.events]
 image_topic: cltl.topic.image
 object_topic: cltl.topic.object_recognition
